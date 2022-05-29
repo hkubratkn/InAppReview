@@ -1,0 +1,57 @@
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import com.kapirti.eagle.ui.theme.EagleTheme
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.google.android.play.core.review.ReviewManagerFactory
+
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+
+            val manager = ReviewManagerFactory.create(this)
+            val request = manager.requestReviewFlow()
+
+            EagleTheme {
+                Surface(color = MaterialTheme.colors.background){
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Button(
+                            onClick = {
+                                request.addOnCompleteListener { request ->
+                                    if (request.isSuccessful) {
+                                        val reviewInfo = request.result
+                                        val flow = manager.launchReviewFlow(this@MainActivity, reviewInfo!!)
+                                        flow.addOnCompleteListener { _ ->
+                                            Toast.makeText(applicationContext,"thanks for rating!!!!!!", Toast.LENGTH_SHORT).show()
+                                        }
+                                    } else {
+                                        Toast.makeText(applicationContext,"ohhh something fucked up",Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        ){
+                            Text(text = "Do")
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+}
